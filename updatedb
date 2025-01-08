@@ -1,0 +1,122 @@
+-- 1) Insert a new Tournament:
+INSERT INTO Tournaments (TournamentName)
+VALUES ('under 7');
+
+-- Retrieve that new Tournament's ID (if needed):
+-- SELECT last_insert_rowid() AS NewTournamentID;
+
+-- For example, assume we fetch that ID and call it :TID
+-- (In practice, you'd store it in a variable in your application code.)
+
+-- 2) Insert the Players (one row per player).
+--    Note: Many designs also store a unique PlayerUUID,
+--    but here we’ll just illustrate PlayerName + TournamentID.
+
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Rudrani',            (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Thoiba Khuraijam',   (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Prisha',            (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Ayansh Lakhmani',   (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Avyaan Gupta',      (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Saarth Tiwari',     (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Advik Agarwal',     (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Lakhyasingh',       (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Abhiraj Kesarwani', (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Gurbaaz Singh Sethi',(SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Aaswik Lath',       (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+INSERT INTO Players (PlayerName, TournamentID) VALUES ('Samarth Singh',     (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'));
+
+-- 3) Optionally, initialize each new player’s row in PlayerPoints (if your schema requires it):
+INSERT INTO PlayerPoints (PlayerID, TournamentID)
+SELECT p.PlayerID, p.TournamentID
+  FROM Players p
+  JOIN Tournaments t ON p.TournamentID = t.TournamentID
+ WHERE t.TournamentName = 'under 7'
+   AND p.PlayerID NOT IN (
+       SELECT PlayerID FROM PlayerPoints WHERE TournamentID = p.TournamentID
+   );
+
+-- 4) Create Round #1 with pairings + results
+--    We’ll store them in JSON. The “Pairings” shows who played whom;
+--    “Results” shows the final points. You must replace pX with the *actual* PlayerIDs
+--    from your database for White & Black. One approach is to look them up by name.
+
+-- Example: Let’s assume the following IDs (purely illustrative):
+-- Rudrani -> 101,  Thoiba -> 102,  Prisha -> 103,  Ayansh -> 104,  Avyaan -> 105,  Saarth -> 106,
+-- Advik -> 107,    Lakhyasingh -> 108, Abhiraj -> 109,  Gurbaaz -> 110, Aaswik -> 111, Samarth -> 112
+
+-- The Pairings from your table are:
+--  White = Rudrani,  Black = Thoiba Khuraijam    => WhitePoints=1, BlackPoints=0
+--  White = Prisha,   Black = Ayansh Lakhmani     => WhitePoints=1, BlackPoints=0
+--  White = Avyaan Gupta, Black = Saarth Tiwari   => WhitePoints=0, BlackPoints=1
+--  White = Advik Agarwal, Black = Lakhyasingh    => WhitePoints=0, BlackPoints=1
+--  White = Abhiraj Kesarwani, Black = Gurbaaz Singh Sethi  => WhitePoints=1, BlackPoints=0
+--  White = Aaswik Lath, Black = Samarth Singh    => WhitePoints=0, BlackPoints=1
+
+-- We'll insert them in JSON form:
+
+INSERT INTO Rounds (RoundNumber, TournamentID, Pairings, Results)
+VALUES (
+  1,
+  (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7'),
+  json('[ [101,102], [103,104], [105,106], [107,108], [109,110], [111,112] ]'),
+  json('[
+    {
+      "white_id": 101,
+      "black_id": 102,
+      "white_points": 1,
+      "black_points": 0
+    },
+    {
+      "white_id": 103,
+      "black_id": 104,
+      "white_points": 1,
+      "black_points": 0
+    },
+    {
+      "white_id": 105,
+      "black_id": 106,
+      "white_points": 0,
+      "black_points": 1
+    },
+    {
+      "white_id": 107,
+      "black_id": 108,
+      "white_points": 0,
+      "black_points": 1
+    },
+    {
+      "white_id": 109,
+      "black_id": 110,
+      "white_points": 1,
+      "black_points": 0
+    },
+    {
+      "white_id": 111,
+      "black_id": 112,
+      "white_points": 0,
+      "black_points": 1
+    }
+  ]')
+);
+
+-- 5) Optionally, update PlayerPoints to reflect the new results:
+--    (In many apps, you'd do this after "Update Results," or automatically in code.)
+UPDATE PlayerPoints
+   SET Points = Points + (
+       CASE
+         WHEN PlayerID=101 THEN 1
+         WHEN PlayerID=102 THEN 0
+         WHEN PlayerID=103 THEN 1
+         WHEN PlayerID=104 THEN 0
+         WHEN PlayerID=105 THEN 0
+         WHEN PlayerID=106 THEN 1
+         WHEN PlayerID=107 THEN 0
+         WHEN PlayerID=108 THEN 1
+         WHEN PlayerID=109 THEN 1
+         WHEN PlayerID=110 THEN 0
+         WHEN PlayerID=111 THEN 0
+         WHEN PlayerID=112 THEN 1
+         ELSE 0
+       END
+   )
+ WHERE TournamentID = (SELECT TournamentID FROM Tournaments WHERE TournamentName='under 7');
