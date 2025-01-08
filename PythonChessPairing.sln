@@ -7,6 +7,7 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PythonChessPairing", "Pytho
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BB902507-C4FB-4848-9407-CACCB9D5A5FB}"
 	ProjectSection(SolutionItems) = preProject
+		PythonChessPairing\PythonChessPairing.py = PythonChessPairing\PythonChessPairing.py
 		updatedb = updatedb
 		updatedcode.py = updatedcode.py
 	EndProjectSection
