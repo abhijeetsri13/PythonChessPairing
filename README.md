@@ -103,12 +103,9 @@ Feel free to fork this repository and make improvements. Submit a pull request f
 
 ---
 
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
 ## Screenshots
+![image](https://github.com/user-attachments/assets/94706a5c-9b83-4f61-81db-95f931014882)
 
-*(Add screenshots of your application here for better visualization.)*
+![image](https://github.com/user-attachments/assets/49093eb4-00eb-44d2-9330-0d377611a7dc)
+
+![image](https://github.com/user-attachments/assets/68472e02-a407-43b9-b6f3-49051851f134)
